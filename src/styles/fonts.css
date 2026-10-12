@@ -1,0 +1,30 @@
+/* Only the latin subsets are pulled in: Latin-1 covers English and Spanish, and every
+   additional subset would be base64'd into the single-file build for nothing. */
+
+@font-face {
+  font-family: 'Archivo Var';
+  font-style: normal;
+  font-display: block;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url('../../node_modules/@fontsource-variable/archivo/files/archivo-latin-standard-normal.woff2')
+    format('woff2-variations');
+}
+
+@font-face {
+  font-family: 'Plex Mono';
+  font-style: normal;
+  font-display: block;
+  font-weight: 400;
+  src: url('../../node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2')
+    format('woff2');
+}
+
+@font-face {
+  font-family: 'Plex Mono';
+  font-style: normal;
+  font-display: block;
+  font-weight: 500;
+  src: url('../../node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2')
+    format('woff2');
+}

@@ -1,0 +1,24 @@
+{
+  "name": "webgl-deck-engine",
+  "version": "0.1.0",
+  "description": "Template for HTML slide decks with WebGL scenes, step motion, keyboard navigation and light/dark themes",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/build.mjs",
+    "new": "node scripts/new-deck.mjs",
+    "verify": "node scripts/verify.mjs",
+    "shots": "node scripts/shots.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.6.0",
+    "vite": "^8.2.1",
+    "vite-plugin-singlefile": "^2.3.3"
+  }
+}

@@ -1,0 +1,415 @@
+/* ---------------------------------------------------------------------------
+   Blocks, plus a few layout utilities for custom slide HTML.
+--------------------------------------------------------------------------- */
+
+.block__ref {
+  margin-top: 0.6rem;
+}
+
+/* --- quote --------------------------------------------------------------- */
+
+.quote {
+  margin: 0;
+  max-width: 44ch;
+  border-left: 1px solid var(--line);
+  padding-left: clamp(0.9rem, 2vw, 1.7rem);
+  font-size: var(--t-lead);
+  font-variation-settings: 'wdth' 100, 'wght' 380;
+  line-height: 1.34;
+  color: var(--text);
+}
+
+.quote--display {
+  max-width: 26ch;
+  border-left: 0;
+  padding-left: 0;
+  font-size: clamp(1.6rem, 4.4vmin, 3.6rem);
+  font-variation-settings: 'wdth' 108, 'wght' 500;
+  line-height: 1.08;
+  letter-spacing: -0.016em;
+}
+
+.quote__src {
+  display: block;
+  margin-top: 0.8em;
+  font-family: var(--font-mono);
+  font-size: var(--t-mono);
+  font-style: normal;
+  color: var(--faint);
+  letter-spacing: 0.01em;
+}
+
+/* --- mono ---------------------------------------------------------------- */
+
+.mono {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--t-mono);
+  line-height: 1.62;
+  color: var(--dim);
+  letter-spacing: 0.005em;
+  white-space: pre;
+  overflow-x: auto;
+  max-width: 100%;
+  padding-bottom: 0.4rem;
+}
+
+/* --- list ---------------------------------------------------------------- */
+
+.list {
+  display: grid;
+  gap: 0.55em;
+  margin: 0;
+  padding: 0;
+  max-width: 52ch;
+  list-style: none;
+  color: var(--dim);
+  counter-reset: item;
+}
+
+.list li {
+  position: relative;
+  padding-left: 1.4em;
+}
+
+.list li::before {
+  content: '';
+  position: absolute;
+  left: 0.1em;
+  top: 0.68em;
+  width: 0.55em;
+  height: 1px;
+  background: var(--structure);
+}
+
+.list--ordered li {
+  padding-left: 2.2em;
+}
+
+.list--ordered li::before {
+  counter-increment: item;
+  content: counter(item, decimal-leading-zero);
+  top: 0.25em;
+  width: auto;
+  height: auto;
+  background: none;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  color: var(--structure);
+}
+
+.list strong {
+  color: var(--text);
+  font-variation-settings: 'wdth' 100, 'wght' 620;
+}
+
+/* --- stats: figures that count up ---------------------------------------- */
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: clamp(1.2rem, 4vw, 3.4rem);
+  margin: 0;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.stat__val {
+  font-size: clamp(1.6rem, 4.4vmin, 3.8rem);
+  font-variation-settings: 'wdth' 112, 'wght' 560;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  /* Without tabular-nums the width jitters on every frame of the count. */
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.stat__approx {
+  font-style: normal;
+  color: var(--dim);
+}
+
+.stat__key {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--faint);
+}
+
+.deck[data-layout='center'] .stats {
+  justify-content: center;
+}
+
+.deck[data-layout='center'] .stat {
+  align-items: center;
+}
+
+/* --- table --------------------------------------------------------------- */
+
+/* Scrolls sideways on its own: on a narrow projector the table moves, the slide does not. */
+.tablewrap {
+  width: 100%;
+  max-width: 58rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: var(--t-mono);
+  line-height: 1.35;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.table th {
+  padding: 0 0 0.5em;
+  font-weight: 400;
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--structure);
+  border-bottom: 1px solid var(--line);
+}
+
+.table td {
+  padding: 0.58em 0;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--dim);
+}
+
+.table td:first-child {
+  padding-right: clamp(1rem, 3vw, 2.6rem);
+}
+
+.table .table__num {
+  padding-right: clamp(0.9rem, 2.6vw, 2.2rem);
+  font-variant-numeric: tabular-nums;
+}
+
+.table td.table__num {
+  color: var(--text);
+}
+
+.table__note {
+  max-width: 46rem;
+  margin: 0.9rem 0 0;
+  font-size: var(--t-micro);
+  line-height: 1.5;
+  color: var(--faint);
+}
+
+/* --- rows: from → to ----------------------------------------------------- */
+
+.rows {
+  display: grid;
+  gap: 0.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+  max-width: 52rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.05fr);
+  align-items: center;
+  gap: clamp(0.6rem, 1.8vw, 1.4rem);
+  padding: 0.62em 0;
+  border-bottom: 1px solid var(--line-soft);
+  font-family: var(--font-mono);
+  font-size: var(--t-mono);
+  line-height: 1.35;
+  text-align: left;
+}
+
+.row:first-child {
+  border-top: 1px solid var(--line-soft);
+}
+
+.row__from {
+  color: var(--dim);
+  min-width: 0;
+}
+
+.row__to {
+  color: var(--text);
+  min-width: 0;
+}
+
+.row__arrow {
+  display: block;
+  width: clamp(1.1rem, 2.2vw, 1.9rem);
+  height: 1px;
+  background: var(--line);
+  position: relative;
+}
+
+.row__arrow::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  border-top: 1px solid var(--structure);
+  border-right: 1px solid var(--structure);
+  transform: rotate(45deg);
+}
+
+/* --- figure -------------------------------------------------------------- */
+
+.figure {
+  margin: 0;
+  width: var(--w, min(100%, 40rem));
+}
+
+.figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+}
+
+.figure__cap {
+  margin-top: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.04em;
+  color: var(--faint);
+}
+
+/* --- rule + spacer ------------------------------------------------------- */
+
+.rule {
+  width: 100%;
+  max-width: 52rem;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.spacer {
+  height: calc(var(--h, 1) * var(--space-4));
+}
+
+/* --- expandable term: opens a sheet from details.js ---------------------- */
+
+.ref {
+  appearance: none;
+  border: 0;
+  padding: 0 0 0.06em;
+  background: none;
+  font: inherit;
+  color: var(--text);
+  cursor: pointer;
+  border-bottom: 1px dashed var(--structure);
+  transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+
+.ref::after {
+  content: '';
+  display: inline-block;
+  width: 0.34em;
+  height: 0.34em;
+  margin-left: 0.42em;
+  vertical-align: 0.42em;
+  border-radius: 50%;
+  background: var(--structure);
+  transition: background 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+
+.ref:hover,
+.ref.is-open {
+  color: var(--signal);
+  border-bottom-color: var(--signal);
+}
+
+.ref:hover::after,
+.ref.is-open::after {
+  background: var(--signal);
+  box-shadow: 0 0 0 3px var(--signal-halo);
+}
+
+/* --- layout utilities for custom HTML ------------------------------------ */
+
+/* Vertical rhythm. --gap overrides. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap, var(--space-3));
+}
+
+/* Responsive columns: as many as fit at --min wide. */
+.cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(var(--min, 14rem), 100%), 1fr));
+  gap: var(--gap, var(--space-4));
+  width: 100%;
+}
+
+.cols-2,
+.cols-3 {
+  display: grid;
+  gap: var(--gap, var(--space-4));
+  width: 100%;
+}
+
+.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(6px);
+  text-align: left;
+}
+
+.card--signal {
+  border-color: color-mix(in srgb, var(--signal) 55%, var(--line));
+}
+
+/* A small number/label chip, mono. */
+.tag {
+  display: inline-block;
+  padding: 0.18em 0.55em;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+@media (max-width: 60rem), (orientation: portrait) {
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem;
+  }
+
+  .row__arrow {
+    display: none;
+  }
+
+  .cols-2,
+  .cols-3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

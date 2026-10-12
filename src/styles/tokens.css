@@ -1,0 +1,94 @@
+/* ---------------------------------------------------------------------------
+   Tokens — the only place a color is written.
+
+   Every color in the deck, HTML and WebGL alike, is a custom property defined
+   once per theme here. Slide styles must use these tokens, never a literal
+   color, or the slide breaks in the other theme.
+
+   Color carries state, never decoration:
+     --text       primary copy
+     --dim        secondary copy
+     --faint      tertiary: labels, numbers, captions
+     --structure  the structural accent (slate blue) — edges, keys, links
+     --signal     the one hot accent (amber) — what matters right now
+   Those are the only two non-neutral hues. Add a third only on purpose.
+
+   --gl-* are what the WebGL scenes paint with (read by src/engine/theme.js).
+   They are tuned separately because a dot on a dark ground and a dot on paper
+   need different values to carry the same weight.
+--------------------------------------------------------------------------- */
+
+:root,
+:root[data-theme='dark'] {
+  --ground: #0a0c0f;
+  --surface: #12151a;
+  --surface-high: #171b22;
+  --line: #212630;
+  --line-soft: #191d25;
+  --text: #e8eaee;
+  --dim: #79828f;
+  --faint: #545c68;
+  --structure: #5e7c93;
+  --signal: #e4a33c;
+
+  --gl-off: #2f3743;
+  --gl-dim: #545c68;
+  --gl-structure: #5e7c93;
+  --gl-signal: #e4a33c;
+  --gl-bright: #e8eaee;
+
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --ground: #f3f1ec;
+  --surface: #fbfaf7;
+  --surface-high: #e9e6df;
+  --line: #d4d0c7;
+  --line-soft: #e2ded6;
+  --text: #14171c;
+  --dim: #565d67;
+  --faint: #868c95;
+  --structure: #46667e;
+  --signal: #a8620a;
+
+  --gl-off: #b1b5bc;
+  --gl-dim: #858c96;
+  --gl-structure: #4d6d85;
+  --gl-signal: #c47a12;
+  --gl-bright: #14171c;
+
+  color-scheme: light;
+}
+
+:root {
+  /* Derived — follow the theme automatically. */
+  --veil: color-mix(in srgb, var(--ground) 94%, transparent);
+  --signal-halo: color-mix(in srgb, var(--signal) 18%, transparent);
+  --structure-wash: color-mix(in srgb, var(--structure) 16%, transparent);
+  --signal-wash: color-mix(in srgb, var(--signal) 10%, transparent);
+
+  /* Families */
+  --font-sans: 'Archivo Var', system-ui, sans-serif;
+  --font-mono: 'Plex Mono', ui-monospace, monospace;
+
+  /* Frame */
+  --pad-x: clamp(1.5rem, 5vw, 6rem);
+  --pad-y: clamp(1.25rem, 3.6vh, 3rem);
+  --content-max: 64rem;
+
+  /* Space ramp, vmin-keyed like the type so slides scale as one picture. */
+  --space-1: clamp(0.25rem, 0.5vmin, 0.5rem);
+  --space-2: clamp(0.5rem, 1vmin, 0.9rem);
+  --space-3: clamp(0.75rem, 1.7vmin, 1.5rem);
+  --space-4: clamp(1rem, 2.6vmin, 2.3rem);
+  --space-5: clamp(1.5rem, 4vmin, 3.5rem);
+  --space-6: clamp(2rem, 6vmin, 5.5rem);
+
+  /* Motion */
+  --ease: cubic-bezier(0.22, 0.68, 0.24, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --step-in: 460ms;
+  --stagger: 70ms;
+  --theme-swap: 320ms;
+}

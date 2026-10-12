@@ -1,0 +1,576 @@
+/* ---------------------------------------------------------------------------
+   Engine chrome: shell, rail, HUD, theme toggle, detail panel, overview, help.
+   Slide-specific styling does not belong here — use slides.css.
+--------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Every layer below sets its own `display`, which would otherwise beat the UA
+   rule for [hidden] and leave invisible overlays swallowing clicks. */
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--t-body);
+  font-variation-settings: 'wdth' 100, 'wght' 400;
+  line-height: 1.5;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition:
+    background-color var(--theme-swap) var(--ease),
+    color var(--theme-swap) var(--ease);
+}
+
+:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* --- the WebGL layer, and its no-WebGL understudy ------------------------ */
+
+#stage,
+#stage-fallback {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+}
+
+#stage-fallback {
+  background:
+    radial-gradient(60% 55% at 62% 46%, var(--structure-wash), transparent 70%),
+    radial-gradient(28% 26% at 61% 45%, var(--signal-wash), transparent 72%);
+}
+
+#stage-fallback::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--line-soft) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line-soft) 1px, transparent 1px);
+  background-size: 5.5rem 5.5rem;
+  mask-image: radial-gradient(58% 58% at 62% 46%, #000 25%, transparent 78%);
+  opacity: 0.7;
+}
+
+/* --- shell --------------------------------------------------------------- */
+
+/* One column: rail on top, content, HUD at the bottom. */
+.deck {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
+  padding: var(--pad-y) var(--pad-x);
+  gap: clamp(0.7rem, 2vh, 1.6rem) 0;
+}
+
+/* A slide with `chrome: false` hides rail and HUD but keeps their space, so
+   the content does not jump between slides. Navigation still works. */
+.deck[data-chrome='off'] .rail,
+.deck[data-chrome='off'] .hud {
+  visibility: hidden;
+}
+
+/* --- rail: one number per slide ------------------------------------------ */
+
+.rail {
+  grid-row: 1 / 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem clamp(0.55rem, 1.2vw, 1.15rem);
+  min-width: 0;
+  /* The corner belongs to the theme toggle. */
+  padding-right: 8rem;
+}
+
+.rail__item {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: color 220ms var(--ease);
+}
+
+.rail__item:hover,
+.rail__item.is-seen {
+  color: var(--dim);
+}
+
+.rail__item.is-current {
+  color: var(--text);
+}
+
+/* --- content + layouts --------------------------------------------------- */
+
+.content {
+  grid-row: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  max-width: var(--content-max);
+  outline: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.slide {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.7rem, 1.9vh, 1.6rem);
+  align-items: flex-start;
+}
+
+/* layout: 'right' — copy on the right, scene framed on the left. */
+/* The column hugs its copy so the scene gets the rest; a full-width column
+   pushed right would leave the scene nowhere to go but under the words. */
+.deck[data-layout='right'] .content {
+  justify-self: end;
+  width: fit-content;
+  max-width: min(100%, 46rem);
+}
+
+/* layout: 'center' — centered copy, scene centered behind it. */
+.deck[data-layout='center'] .content {
+  justify-self: center;
+  align-items: center;
+  width: min(100%, var(--content-max));
+}
+
+.deck[data-layout='center'] .slide {
+  align-items: center;
+  text-align: center;
+}
+
+/* layout: 'full' — the whole frame is yours; scene centered behind. */
+.deck[data-layout='full'] .content {
+  max-width: none;
+  width: 100%;
+}
+
+.deck[data-layout='full'] .slide {
+  align-items: stretch;
+}
+
+/* --- HUD ----------------------------------------------------------------- */
+
+.hud {
+  grid-row: 3 / 4;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: clamp(0.5rem, 1.4vh, 1.1rem);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.hud__pos {
+  font-variant-numeric: tabular-nums;
+}
+
+.hud__pos b {
+  color: var(--dim);
+  font-weight: 400;
+}
+
+/* --- theme toggle -------------------------------------------------------- */
+
+/*
+ * Fixed, not a cell of .deck: adding a column would change the width of
+ * .content, which is what contentBox() measures to solve the camera.
+ * Same color ladder as the rail — faint = available, text = current.
+ */
+.theme {
+  position: fixed;
+  z-index: 10;
+  top: var(--pad-y);
+  right: var(--pad-x);
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  transition: opacity 200ms var(--ease), visibility 0s;
+}
+
+/* A layer is open: the toggle is not part of that conversation. */
+body.has-layer .theme {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 160ms var(--ease), visibility 0s linear 160ms;
+}
+
+.theme__opt {
+  border: 0;
+  padding: 0.2em 0.1em;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color 180ms var(--ease);
+}
+
+.theme__opt:hover {
+  color: var(--dim);
+}
+
+.theme__opt[aria-pressed='true'] {
+  color: var(--text);
+}
+
+.theme__sep {
+  color: var(--line);
+}
+
+/* --- detail panel: a sheet of context, loaded on demand ------------------ */
+
+.panel {
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(46rem, 46vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: clamp(1.4rem, 3.4vh, 2.6rem) clamp(1.3rem, 2.6vw, 2.4rem);
+  background: var(--surface);
+  border-left: 1px solid var(--line);
+  transform: translateX(101%);
+  visibility: hidden;
+  transition: transform 380ms var(--ease), visibility 0s linear 380ms;
+}
+
+.panel.is-open {
+  transform: none;
+  visibility: visible;
+  transition: transform 380ms var(--ease), visibility 0s;
+}
+
+.panel__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.panel__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+}
+
+.panel__kind {
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--signal);
+}
+
+.panel__path {
+  color: var(--faint);
+  letter-spacing: 0.01em;
+  overflow-wrap: anywhere;
+}
+
+.panel__close {
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0.28em 0.6em;
+  background: none;
+  color: var(--dim);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.09em;
+  cursor: pointer;
+  transition: color 180ms var(--ease), border-color 180ms var(--ease);
+}
+
+.panel__close:hover {
+  color: var(--text);
+  border-color: var(--structure);
+}
+
+.panel__title {
+  margin: 0;
+  font-size: clamp(1.05rem, 2.1vmin, 1.7rem);
+  font-variation-settings: 'wdth' 108, 'wght' 560;
+  line-height: 1.14;
+  letter-spacing: -0.012em;
+}
+
+.panel__body {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 0.4rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.panel__note {
+  margin: 0 0 1rem;
+  max-width: 54ch;
+  font-size: calc(var(--t-body) * 0.94);
+  line-height: 1.45;
+  color: var(--dim);
+}
+
+.panel__note strong {
+  color: var(--text);
+  font-variation-settings: 'wdth' 100, 'wght' 620;
+}
+
+.panel__code {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--t-mono);
+  line-height: 1.66;
+  color: var(--dim);
+  white-space: pre;
+  tab-size: 2;
+}
+
+/* Three tags carry meaning inside a detail body. */
+.panel__code b {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.panel__code i {
+  color: var(--signal);
+  font-style: normal;
+}
+
+.panel__code u {
+  color: var(--structure);
+  text-decoration: none;
+}
+
+/* --- overview + help ----------------------------------------------------- */
+
+.overview,
+.help {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1rem, 3vh, 2.2rem);
+  padding: clamp(2rem, 7vh, 5rem) var(--pad-x);
+  background: var(--veil);
+  opacity: 0;
+  transition: opacity 240ms var(--ease);
+}
+
+.overview.is-open,
+.help.is-open {
+  opacity: 1;
+}
+
+.overview__title,
+.help__title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--faint);
+}
+
+.overview__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(17rem, 100%), 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--line-soft);
+  border: 1px solid var(--line-soft);
+  overflow-y: auto;
+}
+
+.overview__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  height: 100%;
+  min-height: clamp(5rem, 13vh, 8rem);
+  padding: clamp(0.8rem, 1.6vh, 1.2rem);
+  border: 0;
+  background: var(--ground);
+  color: var(--dim);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 200ms var(--ease), color 200ms var(--ease);
+}
+
+.overview__cell:hover {
+  background: var(--surface-high);
+  color: var(--text);
+}
+
+.overview__cell.is-current {
+  color: var(--text);
+}
+
+.overview__cell.is-current .overview__num {
+  color: var(--signal);
+}
+
+.overview__num {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.1em;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.overview__name {
+  font-size: calc(var(--t-body) * 0.98);
+  font-variation-settings: 'wdth' 104, 'wght' 500;
+  line-height: 1.18;
+  text-wrap: balance;
+}
+
+.help__card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  align-self: center;
+  width: min(38rem, 100%);
+  padding: clamp(1.4rem, 3vh, 2.4rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.help__list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 0.7rem 1.4rem;
+  margin: 0;
+}
+
+.help__list dt {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono);
+  color: var(--signal);
+  white-space: nowrap;
+}
+
+.help__list dd {
+  margin: 0;
+  font-size: calc(var(--t-body) * 0.94);
+  color: var(--dim);
+}
+
+/* --- narrow / portrait --------------------------------------------------- */
+
+@media (max-width: 60rem), (orientation: portrait) {
+  .rail {
+    gap: 0.3rem 0.55rem;
+  }
+
+  .panel {
+    width: 100%;
+    border-left: 0;
+  }
+}
+
+/* --- deck picker (dev only) ---------------------------------------------- */
+
+body.is-picker .rail,
+body.is-picker .hud {
+  visibility: hidden;
+}
+
+.picker__list {
+  width: min(100%, 52rem);
+  margin: var(--space-3) 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-soft);
+}
+
+.picker__item {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--dim);
+  text-decoration: none;
+  transition: color 180ms var(--ease);
+}
+
+.picker__item:hover {
+  color: var(--text);
+}
+
+.picker__num,
+.picker__slug {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+
+.picker__item:hover .picker__num {
+  color: var(--signal);
+}
+
+.picker__title {
+  font-size: var(--t-h3);
+  font-variation-settings: 'wdth' 104, 'wght' 540;
+  line-height: 1.16;
+}

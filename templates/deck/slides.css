@@ -1,0 +1,5 @@
+/* ---------------------------------------------------------------------------
+   Styles for "__TITLE__". Scope every rule to its slide: `.slide--<id> …`.
+   Tokens only for color (src/styles/tokens.css), the ramp for type
+   (src/styles/type.css), so every slide holds in both themes.
+--------------------------------------------------------------------------- */

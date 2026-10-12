@@ -1,0 +1,46 @@
+/* ---------------------------------------------------------------------------
+   Per-slide styles. Scope every rule to its slide: `.slide--<id> …`.
+   Use tokens (tokens.css) for every color and the ramp (type.css) for type,
+   so each slide holds in both themes and at every screen size.
+--------------------------------------------------------------------------- */
+
+/* 02 — type ramp */
+.slide--type .ramp {
+  display: grid;
+  gap: clamp(0.35rem, 1.1vh, 0.9rem);
+  width: 100%;
+}
+
+.slide--type .ramp__row {
+  display: grid;
+  grid-template-columns: clamp(6rem, 12vw, 11rem) minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--space-4);
+  padding-bottom: clamp(0.3rem, 0.9vh, 0.7rem);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.slide--type .ramp__tag {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.slide--type .ramp__row > :last-child {
+  max-width: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 05 — custom */
+.slide--custom .custom__cards {
+  max-width: 54rem;
+  margin-top: var(--space-3);
+}
+
+.slide--custom .t-lead {
+  max-width: 46ch;
+}

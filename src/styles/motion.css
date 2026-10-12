@@ -1,0 +1,95 @@
+/* ---------------------------------------------------------------------------
+   Step motion.
+
+   Anything with data-step="n" is hidden until the slide reaches step n, then
+   gets .is-live. Hidden steps stay in flow so nothing reflows as the slide
+   advances — the line already read must not move.
+
+   Pick the entrance with data-motion (blocks: `motion: '…'`):
+     up (default) · down · left · right · fade · scale · blur · mask · none
+   Delay one element:      data-delay="200"   (blocks: `delay: 200`)
+   Stagger a list's items: data-stagger on the parent (blocks: `stagger: true`)
+--------------------------------------------------------------------------- */
+
+[data-step] {
+  --dx: 0;
+  --dy: 0.55rem;
+  --s: 1;
+  --b: 0px;
+  opacity: 0;
+  transform: translate(var(--dx), var(--dy)) scale(var(--s));
+  filter: blur(var(--b));
+  transition:
+    opacity var(--step-in) var(--ease) var(--delay, 0ms),
+    transform var(--step-in) var(--ease) var(--delay, 0ms),
+    filter var(--step-in) var(--ease) var(--delay, 0ms),
+    clip-path calc(var(--step-in) * 1.6) var(--ease-out) var(--delay, 0ms);
+}
+
+[data-step].is-live {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+[data-motion='down'] { --dy: -0.55rem; }
+[data-motion='left'] { --dx: 1.6rem; --dy: 0; }
+[data-motion='right'] { --dx: -1.6rem; --dy: 0; }
+[data-motion='fade'] { --dy: 0; }
+[data-motion='scale'] { --dy: 0; --s: 0.94; }
+[data-motion='blur'] { --dy: 0.3rem; --b: 10px; }
+[data-motion='none'] { --dy: 0; transition: none; }
+
+/* A wipe from the left — for display type and rules. */
+/* Negative top/bottom insets leave room for ascenders and descenders, which
+   tight display leading pushes outside the box. */
+[data-motion='mask'] {
+  --dy: 0;
+  clip-path: inset(-0.3em 100% -0.35em -0.1em);
+}
+
+[data-motion='mask'].is-live {
+  clip-path: inset(-0.3em -0.1em -0.35em -0.1em);
+}
+
+/* Stagger: items arrive one after another once their step is live. */
+[data-stagger] > * {
+  opacity: 0;
+  transform: translateY(0.45rem);
+  transition:
+    opacity var(--step-in) var(--ease),
+    transform var(--step-in) var(--ease);
+  transition-delay: calc(var(--delay, 0ms) + var(--i, 0) * var(--stagger));
+}
+
+.is-live [data-stagger] > *,
+[data-stagger].is-live > * {
+  opacity: 1;
+  transform: none;
+}
+
+/* Theme swap: surfaces fade instead of snapping. :where() keeps this at zero
+   specificity, so a step's own transition always wins. */
+:where(.card, .help__card, .row, .table td, .table th) {
+  transition-property: background-color, border-color, color, opacity, transform;
+  transition-duration: var(--theme-swap);
+  transition-timing-function: var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+
+  [data-step],
+  [data-stagger] > * {
+    transform: none !important;
+    filter: none !important;
+    clip-path: none !important;
+  }
+}
